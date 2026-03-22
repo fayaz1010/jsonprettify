@@ -41,7 +41,7 @@ export const metadata: Metadata = {
       "Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.",
     type: "website",
     siteName: "JSON Prettify",
-    images: ["/assets/generated/og-image.png"],
+    images: ["/api/og"],
   },
   twitter: {
     card: "summary_large_image",

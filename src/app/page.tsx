@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { PrivacyBadge } from '@/components/shared/privacy-badge';
@@ -123,18 +122,6 @@ export default function HomePage() {
                   View Pricing
                 </Link>
               </div>
-            </div>
-
-            {/* Hero Image */}
-            <div className="max-w-3xl mx-auto mb-8">
-              <Image
-                src="/assets/generated/hero-home.png"
-                alt="JSON Prettify - Format, Validate and Transform JSON"
-                width={800}
-                height={400}
-                className="rounded-xl shadow-lg border border-border"
-                priority
-              />
             </div>
 
             {/* Interactive Demo Editor */}
