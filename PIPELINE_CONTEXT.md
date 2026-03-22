@@ -1,5 +1,5 @@
 # JSON Prettify — Pipeline Context (Live)
-Updated: 2026-03-22T14:34:08.847Z
+Updated: 2026-03-22T15:05:50.115Z
 
 ## Pipeline Status
 - Stage: building | Status: building
@@ -7,7 +7,7 @@ Updated: 2026-03-22T14:34:08.847Z
 - Build passes: YES
 - Effort remaining: ~18h
 - Completed phases: scan, research, design, plan, env, build, lint, test
-- Last phase: env at 2026-03-22T14:34:07.473Z
+- Last phase: build at 2026-03-22T15:05:37.615Z
 
 ## Retry History
 - plan: 1 attempts (max 2)
@@ -43,9 +43,9 @@ Updated: 2026-03-22T14:34:08.847Z
 - coverage: {"total_features_from_research":67,"features_already_exist":0,"features_planned":67,"features_not_covered":[],"pages_from_inventory":21,"pages_already_exist":0,"pages_planned":21}
 - checklist_items: 66
 
-### build (2026-03-22T08:50:48.116Z)
+### build (2026-03-22T14:35:07.117Z)
 - agents_spawned: 12
-- tasks: ["Fix: Blog dependencies missing (gray-matter, remark, remark-html) - build fails","Fix: Auth is mock-only with hardcoded demo user - no real password hashing (signup st","Fix: No Stripe webhook handler for payment confirmation/subscription activation","Fix: No tests at all (jest configured but 0 test files)","Fix: No sitemap.xml or robots.txt generation","Fix: No rate limiting on API routes","Fix: No error boundary or 404/500 pages","Fix: No analytics integration","Fix: No password reset flow","Fix: Install missing blog deps (gray-matter, remark, remark-html) to fix build","Wire and integrate all components","Fix all lint and type errors"]
+- tasks: ["Fix: Email service not implemented — lib/email.ts just console.logs (password reset e","Fix: Contact form has no backend — submits to nothing","Fix: No email verification on signup","Fix: SubscriptionContext uses localStorage only — no server-side Pro status verificat","Fix: No Stripe checkout auth check — unauthenticated users can create checkout sessio","Fix: 1. Connect real PostgreSQL via Prisma — generate client, replace mock db.ts, run","Fix: 2. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, create Stripe products/prices, config","Fix: 3. Implement Stripe webhook DB updates (replace TODO console.log stubs)","Fix: 4. Integrate real email service (Resend/SendGrid) for password reset and contact","Fix: 5. Unify password validation (both auth routes should require 8+ chars), remove ","Wire and integrate all components","Fix all lint and type errors"]
 
 ## Open Issues & Warnings
 - 🔴 [pipeline] pipeline phase failed: Pipeline crashed: Gemini 404: {
