@@ -1,5 +1,5 @@
 # JSON Prettify — Project Context
-Generated: 2026-03-22T14:20:50.840Z | Updated: 2026-03-22T15:05:37.620Z
+Generated: 2026-03-22T14:20:50.840Z | Updated: 2026-03-22T15:11:33.682Z
 
 ## Overview
 Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.
@@ -34,6 +34,7 @@ Domain: jsonprettify.com
 | D:/jsonprettify/src/app/api/contact/route.ts | API |  |
 | D:/jsonprettify/src/app/api/files/route.ts | API |  |
 | D:/jsonprettify/src/app/api/files/[id]/route.ts | API |  |
+| D:/jsonprettify/src/app/api/og/route.tsx | API | runtime |
 | D:/jsonprettify/src/app/api/stripe/create-checkout-session/route.ts | API |  |
 | D:/jsonprettify/src/app/api/stripe/webhook/route.ts | API | Disable Next.js body parsing — Stripe needs the raw body for |
 | D:/jsonprettify/src/app/api/subscription/route.ts | API |  |
@@ -103,7 +104,6 @@ Domain: jsonprettify.com
 | D:/jsonprettify/src/components/layout/marketing-layout.tsx | Component | MarketingLayout |
 | D:/jsonprettify/src/components/layout/navbar.tsx | Component |  |
 | D:/jsonprettify/src/components/layout/tools-sidebar.tsx | Component |  |
-| D:/jsonprettify/src/components/providers/session-provider.tsx | Component | SessionProvider |
 
 ## Competitors
 - **JSONLint** (https://jsonlint.com/): Well-established and widely used, often the first result in search engines., Fast and simple interface focused on validation.
