@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { Check, X, Sparkles } from 'lucide-react';
+import { FREE_TIER, PRO_TIER } from '@/lib/config';
 
 const TIERS = [
   {

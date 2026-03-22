@@ -11,7 +11,7 @@ interface UpgradeGateProps {
 }
 
 export function UpgradeGate({ feature, tier = 'pro', children }: UpgradeGateProps) {
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [, setShowOverlay] = useState(false);
 
   return (
     <div className="relative">

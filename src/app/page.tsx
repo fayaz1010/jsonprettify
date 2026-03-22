@@ -48,8 +48,8 @@ export default function HomePage() {
       const parsed = JSON.parse(input || SAMPLE_JSON);
       setOutput(JSON.stringify(parsed, null, 2));
       setError(null);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
       setOutput('');
     }
   }, [input]);
@@ -59,8 +59,8 @@ export default function HomePage() {
       const parsed = JSON.parse(input || SAMPLE_JSON);
       setOutput(JSON.stringify(parsed));
       setError(null);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
       setOutput('');
     }
   }, [input]);
@@ -70,8 +70,8 @@ export default function HomePage() {
       JSON.parse(input || SAMPLE_JSON);
       setOutput('✓ Valid JSON');
       setError(null);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
       setOutput('');
     }
   }, [input]);

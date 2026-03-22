@@ -15,18 +15,26 @@
     "@codemirror/search": "^6.6.0",
     "@codemirror/state": "^6.6.0",
     "@codemirror/view": "^6.40.0",
+    "@stripe/stripe-js": "^8.11.0",
+    "@tailwindcss/typography": "^0.5.19",
     "ajv": "^8.18.0",
     "codemirror": "^6.0.2",
     "fast-xml-parser": "^5.5.8",
     "js-yaml": "^4.1.1",
     "lucide-react": "^0.577.0",
     "next": "16.2.1",
+    "next-auth": "^4.24.13",
     "papaparse": "^5.5.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "stripe": "^20.4.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20",
     "@types/papaparse": "^5.5.2",
@@ -35,7 +43,10 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

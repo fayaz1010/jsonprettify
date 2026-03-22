@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { PricingPageContent } from './content';
+import { serverConfig } from '@/lib/server-config';
 
 export const metadata: Metadata = {
   title: 'Pricing - JSON Prettify',
@@ -7,5 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default function PricingPage() {
-  return <PricingPageContent />;
+  const stripePublishableKey = serverConfig.stripe.publishableKey || '';
+  return <PricingPageContent stripePublishableKey={stripePublishableKey} />;
 }

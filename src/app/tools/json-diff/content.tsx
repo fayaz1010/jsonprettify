@@ -4,10 +4,13 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { JsonEditor } from '@/components/editor/json-editor';
 import { ErrorDisplay } from '@/components/editor/error-display';
+import { UpgradeGate } from '@/components/shared/upgrade-gate';
 import { computeJsonDiff } from '@/lib/converters/json-diff';
+import { FREE_TIER } from '@/lib/config';
 import type { DiffResult } from '@/lib/converters/json-diff';
 
 export function JsonDiffContent() {
+  const isProFeatureGated = !FREE_TIER.hasJsonDiff;
   const [inputA, setInputA] = useState('');
   const [inputB, setInputB] = useState('');
   const [results, setResults] = useState<DiffResult[] | null>(null);
@@ -45,15 +48,11 @@ export function JsonDiffContent() {
         <p className="text-text-secondary">Compare two JSON objects side by side and highlight differences.</p>
       </div>
 
-      <div className="bg-accent/5 border border-accent/20 rounded-xl p-4 flex items-center justify-between">
-        <div>
-          <p className="text-text-primary font-medium">Pro Feature</p>
-          <p className="text-text-secondary text-sm">This tool is available with a Pro subscription. Try it free for 14 days.</p>
-        </div>
-        <Link href="/pricing" className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
-          Upgrade to Pro
-        </Link>
-      </div>
+      {isProFeatureGated && (
+        <UpgradeGate feature="JSON Diff Tool" tier="pro">
+          <div className="h-64 bg-surface rounded-xl" />
+        </UpgradeGate>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>

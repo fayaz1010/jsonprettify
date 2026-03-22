@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { siteConfig } from "./config";
 
 const BASE_TITLE = "JSON Prettify";
-const BASE_URL = "https://jsonprettify.com";
+const BASE_URL = siteConfig.appUrl;
 
 interface ToolMeta {
   title: string;

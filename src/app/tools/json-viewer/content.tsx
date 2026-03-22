@@ -10,24 +10,23 @@ import { Upload } from 'lucide-react';
 
 export function JsonViewerContent() {
   const [input, setInput] = useState('');
-  const [error, setError] = useState<{ message: string; line?: number; column?: number } | null>(null);
-
-  const parsedData = useMemo(() => {
+  const parseResult = useMemo(() => {
     if (!input.trim()) {
-      setError(null);
-      return undefined;
+      return { data: undefined, error: null };
     }
     try {
       const data = JSON.parse(input);
-      setError(null);
-      return data;
+      return { data, error: null };
     } catch (e) {
-      setError({
-        message: e instanceof Error ? e.message : String(e),
-      });
-      return undefined;
+      return {
+        data: undefined,
+        error: { message: e instanceof Error ? e.message : String(e) },
+      };
     }
   }, [input]);
+
+  const parsedData = parseResult.data;
+  const error = parseResult.error;
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

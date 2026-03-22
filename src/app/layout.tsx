@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { siteConfig } from "@/lib/config";
 import "./globals.css";
+import { SessionProvider } from "@/components/providers/session-provider";
+import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://jsonprettify.com"),
+  metadataBase: new URL(siteConfig.appUrl),
   title: "JSON Prettify",
   description:
     "Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.",
@@ -55,7 +58,8 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} dark min-h-full flex flex-col font-sans bg-background text-text-primary`}
       >
-        {children}
+        <ServiceWorkerRegister />
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

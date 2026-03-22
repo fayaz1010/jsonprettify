@@ -4,7 +4,9 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { JsonEditor } from '@/components/editor/json-editor';
 import { ErrorDisplay } from '@/components/editor/error-display';
+import { UpgradeGate } from '@/components/shared/upgrade-gate';
 import { validateJsonSchema } from '@/lib/schema-validator';
+import { FREE_TIER } from '@/lib/config';
 
 const SAMPLE_SCHEMA = `{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -18,6 +20,7 @@ const SAMPLE_SCHEMA = `{
 }`;
 
 export function JsonSchemaValidatorContent() {
+  const isProFeatureGated = !FREE_TIER.hasSchemaValidation;
   const [jsonData, setJsonData] = useState('');
   const [jsonSchema, setJsonSchema] = useState('');
   const [validationResult, setValidationResult] = useState<{ valid: boolean; errors: { path: string; message: string; keyword: string }[] } | null>(null);
@@ -54,15 +57,11 @@ export function JsonSchemaValidatorContent() {
         <p className="text-text-secondary">Validate JSON data against a JSON Schema definition.</p>
       </div>
 
-      <div className="bg-accent/5 border border-accent/20 rounded-xl p-4 flex items-center justify-between">
-        <div>
-          <p className="text-text-primary font-medium">Pro Feature</p>
-          <p className="text-text-secondary text-sm">This tool is available with a Pro subscription. Try it free for 14 days.</p>
-        </div>
-        <Link href="/pricing" className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
-          Upgrade to Pro
-        </Link>
-      </div>
+      {isProFeatureGated && (
+        <UpgradeGate feature="JSON Schema Validation" tier="pro">
+          <div className="h-64 bg-surface rounded-xl" />
+        </UpgradeGate>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>

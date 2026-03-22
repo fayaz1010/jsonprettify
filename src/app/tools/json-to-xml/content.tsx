@@ -7,7 +7,9 @@ import { SplitPanel } from '@/components/editor/split-panel';
 import { EditorToolbar } from '@/components/editor/editor-toolbar';
 import { ErrorDisplay } from '@/components/editor/error-display';
 import { UrlFetch } from '@/components/editor/url-fetch';
+import { UpgradeGate } from '@/components/shared/upgrade-gate';
 import { jsonToXml } from '@/lib/converters/json-to-xml';
+import { FREE_TIER } from '@/lib/config';
 
 export function JsonToXmlContent() {
   const { state, setInput, setOutput, setError, clear } = useJsonEditor();
@@ -121,6 +123,18 @@ export function JsonToXmlContent() {
           </ul>
         </div>
       </div>
+      {!FREE_TIER.hasAdvancedConversions && (
+        <UpgradeGate feature="Advanced Conversion Options (TOML, BSON)" tier="pro">
+          <div className="bg-surface border border-border rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-text-primary mb-3">
+              Advanced Conversions
+            </h2>
+            <p className="text-text-secondary text-sm">
+              Convert JSON to TOML, BSON, and other formats with Pro.
+            </p>
+          </div>
+        </UpgradeGate>
+      )}
     </div>
   );
 }
