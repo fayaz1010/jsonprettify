@@ -30,6 +30,10 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        if (!user.isVerified) {
+          throw new Error('Please verify your email first.');
+        }
+
         return {
           id: user.id,
           email: user.email,

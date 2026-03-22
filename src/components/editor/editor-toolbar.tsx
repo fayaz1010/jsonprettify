@@ -29,6 +29,7 @@ interface EditorToolbarProps {
   showPrettify?: boolean;
   showMinify?: boolean;
   showValidate?: boolean;
+  prettifyLabel?: string;
   validationResult?: ValidationResult | null;
 }
 
@@ -43,6 +44,7 @@ export function EditorToolbar({
   showPrettify = true,
   showMinify = true,
   showValidate = true,
+  prettifyLabel = 'Prettify',
   validationResult = null,
 }: EditorToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,7 +69,7 @@ export function EditorToolbar({
             icon={<Wand2 size={16} />}
             onClick={onPrettify}
           >
-            Prettify
+            {prettifyLabel}
           </Button>
         )}
         {showMinify && (

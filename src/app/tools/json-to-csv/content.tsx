@@ -87,6 +87,7 @@ export function JsonToCsvContent() {
           onUpload={handleUpload}
           onDownload={handleDownload}
           showPrettify
+          prettifyLabel="Convert"
           showMinify={false}
           showValidate={false}
         />

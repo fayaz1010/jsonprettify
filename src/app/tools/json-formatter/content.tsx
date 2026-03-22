@@ -8,7 +8,6 @@ import { EditorToolbar } from '@/components/editor/editor-toolbar';
 import { ErrorDisplay } from '@/components/editor/error-display';
 import { TreeView } from '@/components/editor/tree-view';
 import { UrlFetch } from '@/components/editor/url-fetch';
-import { FileHandler } from '@/components/editor/file-handler';
 import { CopyButton } from '@/components/editor/copy-button';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { prettifyJson, minifyJson, validateJson } from '@/lib/json-utils';

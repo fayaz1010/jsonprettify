@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { UserPlus, Loader2 } from 'lucide-react';
+import { UserPlus, Loader2, Mail } from 'lucide-react';
 
 export function SignupPageContent() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export function SignupPageContent() {
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +49,7 @@ export function SignupPageContent() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -58,6 +59,8 @@ export function SignupPageContent() {
 
       if (!res.ok) {
         setError(data.error || 'Registration failed');
+      } else if (data.requiresVerification) {
+        setVerificationSent(true);
       } else {
         router.push('/login');
       }
@@ -73,6 +76,30 @@ export function SignupPageContent() {
       <Navbar />
       <main className="flex-1 flex items-center justify-center py-16 px-4">
         <div className="w-full max-w-md">
+          {verificationSent ? (
+            <div className="bg-surface border border-border rounded-xl p-8 text-center">
+              <div className="flex justify-center mb-4">
+                <Mail className="w-12 h-12 text-[#3B82F6]" />
+              </div>
+              <h1 className="text-2xl font-bold text-[#E2E8F0] mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Check Your Email
+              </h1>
+              <p className="text-[#E2E8F0] mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Thank you for signing up! Please check your email to verify your account.
+              </p>
+              <p className="text-[#94A3B8] text-sm mb-6">
+                We sent a verification link to <span className="font-medium text-[#E2E8F0]">{email}</span>.
+                Please click the link in the email to activate your account.
+              </p>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center px-6 py-3 bg-[#3B82F6] text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+              >
+                Go to Login
+              </Link>
+            </div>
+          ) : (
+          <>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-text-primary mb-2">Create Your Account</h1>
             <p className="text-text-secondary">Start your 14-day free trial of Pro features.</p>
@@ -143,6 +170,8 @@ export function SignupPageContent() {
               Sign in
             </Link>
           </p>
+          </>
+          )}
         </div>
       </main>
       <Footer />

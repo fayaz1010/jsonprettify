@@ -81,6 +81,7 @@ export function JsonToXmlContent() {
           onUpload={handleUpload}
           onDownload={handleDownload}
           showPrettify
+          prettifyLabel="Convert"
           showMinify={false}
           showValidate={false}
         />

@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { rateLimit } from '@/utils/rate-limiter';
+import { sendVerificationEmail } from '@/lib/email';
+import { generateVerificationToken, hashVerificationToken, getVerificationTokenExpiry } from '@/lib/verification-tokens';
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
@@ -37,17 +39,35 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    const rawToken = generateVerificationToken();
+    const tokenHash = hashVerificationToken(rawToken);
+    const tokenExpires = getVerificationTokenExpiry();
+
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash: hashedPassword,
+        name: name || null,
+        isVerified: false,
+        emailVerificationToken: tokenHash,
+        emailVerificationTokenExpires: tokenExpires,
       },
     });
+
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const verificationLink = `${baseUrl}/verify-email/${rawToken}`;
+
+    try {
+      await sendVerificationEmail(email, verificationLink);
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+    }
 
     return Response.json(
       {
         success: true,
-        message: "Account created successfully",
+        message: "Account created successfully. Please check your email to verify your account.",
+        requiresVerification: true,
         user: {
           id: user.id,
           email: user.email,

@@ -81,6 +81,7 @@ export function JsonToYamlContent() {
           onUpload={handleUpload}
           onDownload={handleDownload}
           showPrettify
+          prettifyLabel="Convert"
           showMinify={false}
           showValidate={false}
         />

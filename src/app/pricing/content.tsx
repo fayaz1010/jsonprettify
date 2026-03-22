@@ -107,6 +107,7 @@ interface PricingPageContentProps {
   stripePublishableKey?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function PricingPageContent({ stripePublishableKey }: PricingPageContentProps) {
   const [annual, setAnnual] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);

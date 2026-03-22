@@ -8,19 +8,28 @@ datasource db {
 }
 
 model User {
-  id                 String      @id @default(uuid())
-  email              String      @unique
-  passwordHash       String
-  subscriptionStatus String      @default("FREE")
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
-  savedFiles         SavedFile[]
+  id                    String      @id @default(uuid())
+  email                 String      @unique
+  passwordHash          String
+  name                  String?
+  subscriptionStatus    String      @default("FREE")
+  subscriptionTier      String      @default("free")
+  maxSavedFiles         Int         @default(5)
+  stripeCustomerId      String?     @unique
+  stripeSubscriptionId  String?
+  subscriptionExpiresAt             DateTime?
+  isVerified                        Boolean     @default(false)
+  emailVerificationToken            String?
+  emailVerificationTokenExpires     DateTime?
+  createdAt                         DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  savedFiles            SavedFile[]
 }
 
 model SavedFile {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   filename  String
   content   String
   isPublic  Boolean  @default(false)

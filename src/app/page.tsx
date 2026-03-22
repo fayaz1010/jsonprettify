@@ -2,9 +2,11 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { PrivacyBadge } from '@/components/shared/privacy-badge';
+import { AdBanner } from '@/components/shared/ad-banner';
 import {
   Wand2, CheckCircle, Minimize2, ArrowRight, FileCode,
   Table, Code, GitCompare, Shield, Eye, Zap, Lock, Globe
@@ -100,9 +102,12 @@ export default function HomePage() {
                 <br />
                 <span className="text-accent">JSON Instantly</span>
               </h1>
-              <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-8">
-                Format. Validate. Convert. All your JSON tools in one place.
-                The fastest, cleanest JSON toolkit — free for basics, Pro for power users.
+              <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-4">
+                Free online JSON formatter, validator, minifier and converter.
+                All processing happens client-side — your data never leaves your browser.
+              </p>
+              <p className="text-sm text-text-muted max-w-xl mx-auto mb-8">
+                Focused. Private. Efficient. The fastest JSON toolkit for developers.
               </p>
               <div className="flex items-center justify-center gap-4 mb-12">
                 <Link
@@ -118,6 +123,18 @@ export default function HomePage() {
                   View Pricing
                 </Link>
               </div>
+            </div>
+
+            {/* Hero Image */}
+            <div className="max-w-3xl mx-auto mb-8">
+              <Image
+                src="/assets/generated/hero-home.png"
+                alt="JSON Prettify - Format, Validate and Transform JSON"
+                width={800}
+                height={400}
+                className="rounded-xl shadow-lg border border-border"
+                priority
+              />
             </div>
 
             {/* Interactive Demo Editor */}
@@ -293,6 +310,10 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        {/* Ad Banner for free users */}
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <AdBanner />
+        </div>
       </main>
 
       <Footer />

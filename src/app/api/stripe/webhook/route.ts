@@ -1,8 +1,42 @@
 import { stripe, STRIPE_CONFIG } from '@/lib/stripe';
+import { prisma } from '@/lib/db';
 import Stripe from 'stripe';
 
 // Disable Next.js body parsing — Stripe needs the raw body for signature verification
 export const runtime = 'nodejs';
+
+// In-memory set for idempotency (in production, use Redis or a DB table)
+const processedEvents = new Set<string>();
+const MAX_PROCESSED_EVENTS = 10000;
+
+function markEventProcessed(eventId: string): boolean {
+  if (processedEvents.has(eventId)) {
+    return false;
+  }
+  if (processedEvents.size >= MAX_PROCESSED_EVENTS) {
+    const first = processedEvents.values().next().value;
+    if (first !== undefined) processedEvents.delete(first);
+  }
+  processedEvents.add(eventId);
+  return true;
+}
+
+// Map Stripe price amounts (in cents) to subscription tiers
+function resolveSubscriptionTier(subscription: Stripe.Subscription): {
+  tier: string;
+  maxSavedFiles: number;
+} {
+  const item = subscription.items?.data?.[0];
+  const amount = item?.price?.unit_amount ?? 0;
+  const amountDollars = amount / 100;
+
+  if (amountDollars >= 349) {
+    return { tier: 'professional', maxSavedFiles: 200 };
+  } else if (amountDollars >= 149) {
+    return { tier: 'growth', maxSavedFiles: 200 };
+  }
+  return { tier: 'starter', maxSavedFiles: 200 };
+}
 
 export async function POST(request: Request) {
   const signature = request.headers.get('stripe-signature');
@@ -39,6 +73,12 @@ export async function POST(request: Request) {
       { error: `Webhook signature verification failed: ${message}` },
       { status: 400 }
     );
+  }
+
+  // Idempotency check — skip duplicate events
+  if (!markEventProcessed(event.id)) {
+    console.log(`[Stripe Webhook] Duplicate event ignored: ${event.id}`);
+    return Response.json({ received: true, duplicate: true }, { status: 200 });
   }
 
   try {
@@ -90,20 +130,24 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     return;
   }
 
-  // TODO: Replace with real database update when DB is integrated
-  // Example:
-  // await db.user.update({
-  //   where: { email: customerEmail },
-  //   data: {
-  //     isPro: true,
-  //     subscription: 'pro',
-  //     stripeCustomerId: customerId,
-  //     stripeSubscriptionId: subscriptionId,
-  //     maxSavedFiles: 200,
-  //   },
-  // });
+  const user = await prisma.user.findUnique({ where: { email: customerEmail } });
+  if (!user) {
+    console.error(`[Stripe Webhook] No user found with email: ${customerEmail}`);
+    return;
+  }
 
-  console.log(`[Stripe Webhook] User ${customerEmail} upgraded to pro`);
+  await prisma.user.update({
+    where: { email: customerEmail },
+    data: {
+      subscriptionStatus: 'PRO',
+      subscriptionTier: 'starter',
+      stripeCustomerId: customerId ?? null,
+      stripeSubscriptionId: subscriptionId ?? null,
+      maxSavedFiles: 200,
+    },
+  });
+
+  console.log(`[Stripe Webhook] User ${customerEmail} upgraded to PRO`);
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
@@ -123,15 +167,19 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
     return;
   }
 
-  // TODO: Replace with real database update when DB is integrated
-  // Example:
-  // await db.user.update({
-  //   where: { stripeCustomerId: customerId },
-  //   data: {
-  //     isPro: true,
-  //     subscriptionRenewsAt: periodEnd ? new Date(periodEnd * 1000) : null,
-  //   },
-  // });
+  const user = await prisma.user.findUnique({ where: { stripeCustomerId: customerId } });
+  if (!user) {
+    console.error(`[Stripe Webhook] No user found with stripeCustomerId: ${customerId}`);
+    return;
+  }
+
+  await prisma.user.update({
+    where: { stripeCustomerId: customerId },
+    data: {
+      subscriptionStatus: 'PRO',
+      stripeSubscriptionId: subscriptionId ?? null,
+    },
+  });
 
   console.log(`[Stripe Webhook] Subscription payment confirmed for customer ${customerId}, period ends: ${periodEnd ? new Date(periodEnd * 1000).toISOString() : 'unknown'}`);
 }
@@ -151,16 +199,20 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
   const isActive = status === 'active' || status === 'trialing';
 
-  // TODO: Replace with real database update when DB is integrated
-  // Example:
-  // await db.user.update({
-  //   where: { stripeCustomerId: customerId },
-  //   data: {
-  //     isPro: isActive,
-  //     subscription: isActive ? 'pro' : 'free',
-  //     maxSavedFiles: isActive ? 200 : 5,
-  //   },
-  // });
+  const user = await prisma.user.findUnique({ where: { stripeCustomerId: customerId } });
+  if (!user) {
+    console.error(`[Stripe Webhook] No user found with stripeCustomerId: ${customerId}`);
+    return;
+  }
+
+  await prisma.user.update({
+    where: { stripeCustomerId: customerId },
+    data: {
+      subscriptionStatus: isActive ? 'PRO' : 'FREE',
+      subscriptionTier: isActive ? resolveSubscriptionTier(subscription).tier : 'free',
+      maxSavedFiles: isActive ? resolveSubscriptionTier(subscription).maxSavedFiles : 5,
+    },
+  });
 
   console.log(`[Stripe Webhook] Subscription for customer ${customerId} updated — active: ${isActive}`);
 }
@@ -177,17 +229,21 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     return;
   }
 
-  // TODO: Replace with real database update when DB is integrated
-  // Example:
-  // await db.user.update({
-  //   where: { stripeCustomerId: customerId },
-  //   data: {
-  //     isPro: false,
-  //     subscription: 'free',
-  //     stripeSubscriptionId: null,
-  //     maxSavedFiles: 5,
-  //   },
-  // });
+  const user = await prisma.user.findUnique({ where: { stripeCustomerId: customerId } });
+  if (!user) {
+    console.error(`[Stripe Webhook] No user found with stripeCustomerId: ${customerId}`);
+    return;
+  }
+
+  await prisma.user.update({
+    where: { stripeCustomerId: customerId },
+    data: {
+      subscriptionStatus: 'FREE',
+      subscriptionTier: 'free',
+      stripeSubscriptionId: null,
+      maxSavedFiles: 5,
+    },
+  });
 
   console.log(`[Stripe Webhook] Subscription cancelled for customer ${customerId} — downgraded to free`);
 }

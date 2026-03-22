@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { DashboardPageContent } from './content';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -7,5 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  return <DashboardPageContent />;
+  return (
+    <Suspense>
+      <DashboardPageContent />
+    </Suspense>
+  );
 }

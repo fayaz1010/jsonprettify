@@ -34,9 +34,9 @@ export async function POST(request: Request) {
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
       const resetLink = `${baseUrl}/reset-password/${token}`;
-      const { subject, body } = buildPasswordResetEmail(resetLink, '1 hour');
+      const { subject, body, html } = buildPasswordResetEmail(resetLink, '1 hour');
 
-      await sendEmail({ to: user.email, subject, body });
+      await sendEmail({ to: user.email, subject, body, html });
     }
 
     return NextResponse.json({ message: successMessage });

@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useSession } from 'next-auth/react';
 
 type Plan = 'free' | 'pro';
 
@@ -8,65 +9,58 @@ interface SubscriptionState {
   plan: Plan;
   isProUser: boolean;
   loading: boolean;
-  /** Upgrade the user to Pro (called after successful checkout) */
-  activatePro: () => void;
-  /** Downgrade the user to Free (called after subscription cancellation) */
-  deactivatePro: () => void;
+  /** Re-fetch subscription status from the server */
+  refreshSubscription: () => Promise<void>;
 }
 
 const SubscriptionContext = createContext<SubscriptionState>({
   plan: 'free',
   isProUser: false,
   loading: true,
-  activatePro: () => {},
-  deactivatePro: () => {},
+  refreshSubscription: async () => {},
 });
 
-const STORAGE_KEY = 'jsonprettify_subscription';
-
 /**
- * Client-side subscription provider.
+ * Server-verified subscription provider.
  *
- * NOTE: In a production application, subscription status would be
- * persisted in a database and verified server-side via Stripe webhooks.
- * This implementation uses localStorage for demonstration purposes.
+ * Fetches the authenticated user's subscription status from the
+ * /api/subscription endpoint, which reads from the database.
+ * Falls back to 'free' for unauthenticated users.
  */
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
+  const { data: session, status: sessionStatus } = useSession();
   const [plan, setPlan] = useState<Plan>('free');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchSubscription = useCallback(async () => {
+    if (sessionStatus === 'loading') return;
+
+    if (sessionStatus !== 'authenticated' || !session?.user) {
+      setPlan('free');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.plan === 'pro') {
-          setPlan('pro');
-        }
+      setLoading(true);
+      const res = await fetch('/api/subscription');
+
+      if (res.ok) {
+        const data = await res.json();
+        setPlan(data.subscription?.plan === 'pro' ? 'pro' : 'free');
+      } else {
+        setPlan('free');
       }
     } catch {
-      // Ignore storage errors
+      setPlan('free');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  }, [session, sessionStatus]);
 
-  const activatePro = useCallback(() => {
-    setPlan('pro');
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ plan: 'pro', activatedAt: new Date().toISOString() }));
-    } catch {
-      // Ignore storage errors
-    }
-  }, []);
-
-  const deactivatePro = useCallback(() => {
-    setPlan('free');
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // Ignore storage errors
-    }
-  }, []);
+  useEffect(() => {
+    fetchSubscription();
+  }, [fetchSubscription]);
 
   return (
     <SubscriptionContext.Provider
@@ -74,8 +68,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         plan,
         isProUser: plan === 'pro',
         loading,
-        activatePro,
-        deactivatePro,
+        refreshSubscription: fetchSubscription,
       }}
     >
       {children}

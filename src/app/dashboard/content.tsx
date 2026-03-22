@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { useSubscription } from '@/context/SubscriptionContext';
@@ -22,7 +22,8 @@ interface SavedFile {
 export function DashboardPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { isProUser, plan } = useSubscription();
+  const { isProUser, refreshSubscription } = useSubscription();
+  const searchParams = useSearchParams();
   const [files, setFiles] = useState<SavedFile[]>([]);
   const [fileLimit, setFileLimit] = useState(5);
   const [loading, setLoading] = useState(true);
@@ -32,6 +33,12 @@ export function DashboardPageContent() {
       router.push('/login');
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (searchParams.get('checkout') === 'success') {
+      refreshSubscription();
+    }
+  }, [searchParams, refreshSubscription]);
 
   useEffect(() => {
     if (status !== 'authenticated') return;

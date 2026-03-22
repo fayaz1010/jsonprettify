@@ -1,58 +1,100 @@
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 import { rateLimit } from '@/utils/rate-limiter';
 
 export async function GET(request: Request) {
   const rateLimitResponse = rateLimit(request);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const authHeader = request.headers.get('authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
     return Response.json(
       { success: false, error: 'Unauthorized' },
       { status: 401 }
-    )
+    );
   }
 
-  // Mock saved files list
+  const userId = (session.user as { id?: string }).id;
+  if (!userId) {
+    return Response.json(
+      { success: false, error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { subscriptionStatus: true },
+  });
+
+  const maxFiles = user?.subscriptionStatus === 'PRO' ? 200 : 5;
+
+  const files = await prisma.savedFile.findMany({
+    where: { userId },
+    orderBy: { updatedAt: 'desc' },
+    select: {
+      id: true,
+      filename: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
   return Response.json({
     success: true,
-    files: [
-      { id: 'file1', name: 'config.json', size: '1KB', createdAt: '2025-03-01T12:00:00Z', updatedAt: '2025-03-10T08:30:00Z' },
-      { id: 'file2', name: 'data.json', size: '4KB', createdAt: '2025-03-05T09:15:00Z', updatedAt: '2025-03-05T09:15:00Z' },
-      { id: 'file3', name: 'settings.json', size: '2KB', createdAt: '2025-03-12T14:45:00Z', updatedAt: '2025-03-15T16:20:00Z' },
-    ],
-    total: 3,
-    limit: 5,
-  })
+    files: files.map((f) => ({
+      id: f.id,
+      name: f.filename,
+      createdAt: f.createdAt.toISOString(),
+      updatedAt: f.updatedAt.toISOString(),
+    })),
+    total: files.length,
+    limit: maxFiles,
+  });
 }
 
 export async function POST(request: Request) {
   const rateLimitResponse = rateLimit(request);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const authHeader = request.headers.get('authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
     return Response.json(
       { success: false, error: 'Unauthorized' },
       { status: 401 }
-    )
+    );
+  }
+
+  const userId = (session.user as { id?: string }).id;
+  if (!userId) {
+    return Response.json(
+      { success: false, error: 'Unauthorized' },
+      { status: 401 }
+    );
   }
 
   try {
-    const body = await request.json()
-    const { name, content } = body
+    const body = await request.json();
+    const { name, content } = body;
 
     if (!name) {
       return Response.json(
         { success: false, error: 'File name is required' },
         { status: 400 }
-      )
+      );
     }
 
-    // Mock: check file limit for free users (5 files max)
-    const currentFileCount = 3
-    const maxFiles = 5
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { subscriptionStatus: true },
+    });
+
+    const maxFiles = user?.subscriptionStatus === 'PRO' ? 200 : 5;
+
+    const currentFileCount = await prisma.savedFile.count({
+      where: { userId },
+    });
 
     if (currentFileCount >= maxFiles) {
       return Response.json(
@@ -63,27 +105,34 @@ export async function POST(request: Request) {
           maxFiles,
         },
         { status: 403 }
-      )
+      );
     }
+
+    const file = await prisma.savedFile.create({
+      data: {
+        userId,
+        filename: name,
+        content: content || '',
+      },
+    });
 
     return Response.json(
       {
         success: true,
         message: 'File saved successfully',
         file: {
-          id: 'file-' + Date.now(),
-          name,
-          size: content ? `${new TextEncoder().encode(content).length}B` : '0B',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          id: file.id,
+          name: file.filename,
+          createdAt: file.createdAt.toISOString(),
+          updatedAt: file.updatedAt.toISOString(),
         },
       },
       { status: 201 }
-    )
+    );
   } catch {
     return Response.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }

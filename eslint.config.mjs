@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Worktrees and non-Next.js config files
+    ".claude/**",
+    "jest-strip-types-transformer.js",
   ]),
 ]);
 

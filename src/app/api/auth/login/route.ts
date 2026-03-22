@@ -17,6 +17,13 @@ export async function POST(request: Request) {
       )
     }
 
+    if (password.length < 8) {
+      return Response.json(
+        { success: false, error: 'Password must be at least 8 characters' },
+        { status: 400 }
+      )
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -34,6 +41,13 @@ export async function POST(request: Request) {
       return Response.json(
         { success: false, error: 'Invalid credentials' },
         { status: 401 }
+      )
+    }
+
+    if (!user.isVerified) {
+      return Response.json(
+        { success: false, error: 'Please verify your email first.' },
+        { status: 403 }
       )
     }
 

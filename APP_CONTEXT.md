@@ -1,5 +1,5 @@
 # JSON Prettify — Project Context
-Generated: 2026-03-22T08:33:55.059Z | Updated: 2026-03-22T08:58:21.255Z
+Generated: 2026-03-22T14:20:50.840Z | Updated: 2026-03-22T15:05:37.620Z
 
 ## Overview
 Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.
@@ -15,7 +15,7 @@ Domain: jsonprettify.com
 
 ## Tech Stack
 - Framework: nextjs
-- Dependencies: @codemirror/commands, @codemirror/lang-json, @codemirror/lint, @codemirror/search, @codemirror/state, @codemirror/view, @stripe/stripe-js, @tailwindcss/typography, ajv, codemirror, fast-xml-parser, js-yaml, lucide-react, next, next-auth
+- Dependencies: @codemirror/commands, @codemirror/lang-json, @codemirror/lint, @codemirror/search, @codemirror/state, @codemirror/view, @stripe/stripe-js, @tailwindcss/typography, @types/bcryptjs, ajv, bcryptjs, codemirror, fast-xml-parser, gray-matter, js-yaml
 
 ## Design System
 - Primary: #1E293B | Accent: #3B82F6 | BG: #0F172A
@@ -25,10 +25,13 @@ Domain: jsonprettify.com
 | Path | Type | Description |
 |------|------|-------------|
 | D:/jsonprettify/src/app/api/ads/route.ts | API | Ads endpoint works without auth (free users may not be logge |
+| D:/jsonprettify/src/app/api/auth/forgot-password/route.ts | API |  |
 | D:/jsonprettify/src/app/api/auth/login/route.ts | API |  |
-| D:/jsonprettify/src/app/api/auth/register/route.ts | API |  |
+| D:/jsonprettify/src/app/api/auth/reset-password/route.ts | API |  |
 | D:/jsonprettify/src/app/api/auth/signup/route.ts | API |  |
+| D:/jsonprettify/src/app/api/auth/verify-email/route.ts | API |  |
 | D:/jsonprettify/src/app/api/auth/[...nextauth]/route.ts | API |  |
+| D:/jsonprettify/src/app/api/contact/route.ts | API |  |
 | D:/jsonprettify/src/app/api/files/route.ts | API |  |
 | D:/jsonprettify/src/app/api/files/[id]/route.ts | API |  |
 | D:/jsonprettify/src/app/api/stripe/create-checkout-session/route.ts | API |  |
@@ -42,10 +45,12 @@ Domain: jsonprettify.com
 | D:/jsonprettify/src/app/contact/content.tsx | Source | ContactPageContent |
 | D:/jsonprettify/src/app/contact/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/dashboard/content.tsx | Source |  |
-| D:/jsonprettify/src/app/dashboard/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/dashboard/page.tsx | Page | dynamic |
 | D:/jsonprettify/src/app/error.tsx | Source | Error |
 | D:/jsonprettify/src/app/features/content.tsx | Source |  |
 | D:/jsonprettify/src/app/features/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/forgot-password/content.tsx | Source | ForgotPasswordContent |
+| D:/jsonprettify/src/app/forgot-password/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/layout.tsx | Layout |  |
 | D:/jsonprettify/src/app/login/content.tsx | Source | LoginPageContent |
 | D:/jsonprettify/src/app/login/page.tsx | Page | metadata |
@@ -56,29 +61,35 @@ Domain: jsonprettify.com
 | D:/jsonprettify/src/app/pricing/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/privacy/content.tsx | Source | PrivacyPageContent |
 | D:/jsonprettify/src/app/privacy/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/reset-password/[token]/content.tsx | Source | ResetPasswordContent |
+| D:/jsonprettify/src/app/reset-password/[token]/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/robots.ts | Source | robots |
 | D:/jsonprettify/src/app/signup/content.tsx | Source | SignupPageContent |
 | D:/jsonprettify/src/app/signup/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/sitemap.ts | Source | jsonprettify.com' |
 | D:/jsonprettify/src/app/terms/content.tsx | Source | TermsPageContent |
 | D:/jsonprettify/src/app/terms/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/tools/json-diff/content.tsx | Source | JsonDiffContent |
 | D:/jsonprettify/src/app/tools/json-diff/page.tsx | Page | metadata |
-| D:/jsonprettify/src/app/tools/json-formatter/content.tsx | Source | JsonFormatterContent |
+| D:/jsonprettify/src/app/tools/json-formatter/content.tsx | Source |  |
 | D:/jsonprettify/src/app/tools/json-formatter/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/tools/json-minifier/content.tsx | Source | JsonMinifierContent |
 | D:/jsonprettify/src/app/tools/json-minifier/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/tools/json-schema-validator/content.tsx | Source | json-schema.org/draft/2020-12/schema", |
 | D:/jsonprettify/src/app/tools/json-schema-validator/page.tsx | Page | metadata |
-| D:/jsonprettify/src/app/tools/json-to-csv/content.tsx | Source | JsonToCsvContent |
+| D:/jsonprettify/src/app/tools/json-to-csv/content.tsx | Source |  |
 | D:/jsonprettify/src/app/tools/json-to-csv/page.tsx | Page | metadata |
-| D:/jsonprettify/src/app/tools/json-to-xml/content.tsx | Source | JsonToXmlContent |
+| D:/jsonprettify/src/app/tools/json-to-xml/content.tsx | Source |  |
 | D:/jsonprettify/src/app/tools/json-to-xml/page.tsx | Page | metadata |
-| D:/jsonprettify/src/app/tools/json-to-yaml/content.tsx | Source | JsonToYamlContent |
+| D:/jsonprettify/src/app/tools/json-to-yaml/content.tsx | Source |  |
 | D:/jsonprettify/src/app/tools/json-to-yaml/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/tools/json-validator/content.tsx | Source | JsonValidatorContent |
 | D:/jsonprettify/src/app/tools/json-validator/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/tools/json-viewer/content.tsx | Source | JsonViewerContent |
 | D:/jsonprettify/src/app/tools/json-viewer/page.tsx | Page | metadata |
 | D:/jsonprettify/src/app/tools/layout.tsx | Layout | ToolsLayout |
+| D:/jsonprettify/src/app/verify-email/[token]/content.tsx | Source | VerifyEmailContent |
+| D:/jsonprettify/src/app/verify-email/[token]/page.tsx | Page | metadata |
 | D:/jsonprettify/src/components/analytics/google-analytics.tsx | Component |  |
 | D:/jsonprettify/src/components/editor/copy-button.tsx | Component | CopyButton |
 | D:/jsonprettify/src/components/editor/editor-toolbar.tsx | Component |  |
@@ -93,17 +104,6 @@ Domain: jsonprettify.com
 | D:/jsonprettify/src/components/layout/navbar.tsx | Component |  |
 | D:/jsonprettify/src/components/layout/tools-sidebar.tsx | Component |  |
 | D:/jsonprettify/src/components/providers/session-provider.tsx | Component | SessionProvider |
-| D:/jsonprettify/src/components/pwa/sw-register.tsx | Component | ServiceWorkerRegister |
-| D:/jsonprettify/src/components/shared/ErrorBoundary.tsx | Component | ErrorBoundary |
-| D:/jsonprettify/src/components/shared/privacy-badge.tsx | Component | PrivacyBadge |
-| D:/jsonprettify/src/components/shared/upgrade-gate.tsx | Component | UpgradeGate |
-| D:/jsonprettify/src/components/ui/badge.tsx | Component |  |
-| D:/jsonprettify/src/components/ui/button.tsx | Component |  |
-| D:/jsonprettify/src/components/ui/card.tsx | Component | Card |
-| D:/jsonprettify/src/components/ui/input.tsx | Component | Input |
-| D:/jsonprettify/src/components/ui/modal.tsx | Component | Modal |
-| D:/jsonprettify/src/components/ui/tabs.tsx | Component |  |
-| D:/jsonprettify/src/components/ui/ThemeToggle.tsx | Component | ThemeToggle |
 
 ## Competitors
 - **JSONLint** (https://jsonlint.com/): Well-established and widely used, often the first result in search engines., Fast and simple interface focused on validation.

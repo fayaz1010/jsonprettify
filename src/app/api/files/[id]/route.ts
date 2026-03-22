@@ -1,3 +1,6 @@
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 import { rateLimit } from '@/utils/rate-limiter';
 
 export async function GET(
@@ -7,36 +10,38 @@ export async function GET(
   const rateLimitResponse = rateLimit(request);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const authHeader = request.headers.get('authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
     return Response.json(
       { success: false, error: 'Unauthorized' },
       { status: 401 }
-    )
+    );
   }
 
-  const { id } = await params
+  const userId = (session.user as { id?: string }).id;
+  const { id } = await params;
 
-  // Mock: simulate file not found
-  if (id === 'nonexistent') {
+  const file = await prisma.savedFile.findFirst({
+    where: { id, userId: userId! },
+  });
+
+  if (!file) {
     return Response.json(
       { success: false, error: 'File not found' },
       { status: 404 }
-    )
+    );
   }
 
   return Response.json({
     success: true,
     file: {
-      id,
-      name: 'config.json',
-      content: '{\n  "key": "value",\n  "nested": {\n    "array": [1, 2, 3]\n  }\n}',
-      size: '65B',
-      createdAt: '2025-03-01T12:00:00Z',
-      updatedAt: '2025-03-10T08:30:00Z',
+      id: file.id,
+      name: file.filename,
+      content: file.content,
+      createdAt: file.createdAt.toISOString(),
+      updatedAt: file.updatedAt.toISOString(),
     },
-  })
+  });
 }
 
 export async function PUT(
@@ -46,50 +51,61 @@ export async function PUT(
   const rateLimitResponse = rateLimit(request);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const authHeader = request.headers.get('authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
     return Response.json(
       { success: false, error: 'Unauthorized' },
       { status: 401 }
-    )
+    );
   }
 
-  const { id } = await params
+  const userId = (session.user as { id?: string }).id;
+  const { id } = await params;
 
-  if (id === 'nonexistent') {
+  const existing = await prisma.savedFile.findFirst({
+    where: { id, userId: userId! },
+  });
+
+  if (!existing) {
     return Response.json(
       { success: false, error: 'File not found' },
       { status: 404 }
-    )
+    );
   }
 
   try {
-    const body = await request.json()
-    const { name, content } = body
+    const body = await request.json();
+    const { name, content } = body;
 
-    if (!name && !content) {
+    if (!name && content === undefined) {
       return Response.json(
         { success: false, error: 'At least one field (name or content) is required' },
         { status: 400 }
-      )
+      );
     }
+
+    const updated = await prisma.savedFile.update({
+      where: { id },
+      data: {
+        ...(name && { filename: name }),
+        ...(content !== undefined && { content }),
+      },
+    });
 
     return Response.json({
       success: true,
       message: 'File updated successfully',
       file: {
-        id,
-        name: name || 'config.json',
-        size: content ? `${new TextEncoder().encode(content).length}B` : '65B',
-        updatedAt: new Date().toISOString(),
+        id: updated.id,
+        name: updated.filename,
+        updatedAt: updated.updatedAt.toISOString(),
       },
-    })
+    });
   } catch {
     return Response.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -100,27 +116,33 @@ export async function DELETE(
   const rateLimitResponse = rateLimit(request);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const authHeader = request.headers.get('authorization')
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
     return Response.json(
       { success: false, error: 'Unauthorized' },
       { status: 401 }
-    )
+    );
   }
 
-  const { id } = await params
+  const userId = (session.user as { id?: string }).id;
+  const { id } = await params;
 
-  if (id === 'nonexistent') {
+  const existing = await prisma.savedFile.findFirst({
+    where: { id, userId: userId! },
+  });
+
+  if (!existing) {
     return Response.json(
       { success: false, error: 'File not found' },
       { status: 404 }
-    )
+    );
   }
+
+  await prisma.savedFile.delete({ where: { id } });
 
   return Response.json({
     success: true,
     message: 'File deleted successfully',
     deletedFileId: id,
-  })
+  });
 }
