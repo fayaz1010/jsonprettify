@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/db";
+import { rateLimit } from '@/utils/rate-limiter';
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
+  const rateLimitResponse = rateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const body = await request.json();
     const { email, password, name } = body;
@@ -30,12 +35,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Note: In production, hash the password before storing.
-    // This stores the raw password as passwordHash for demonstration only.
+    const hashedPassword = await bcrypt.hash(password, 12);
+
     const user = await prisma.user.create({
       data: {
         email,
-        passwordHash: password,
+        passwordHash: hashedPassword,
       },
     });
 

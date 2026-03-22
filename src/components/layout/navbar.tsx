@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
 import {
   Menu,
   X,
@@ -16,8 +17,12 @@ import {
   Shield,
   Eye,
   Sparkles,
+  LogOut,
+  LayoutDashboard,
+  User,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { useSubscription } from '@/context/SubscriptionContext';
 
 const toolCategories = [
   {
@@ -48,14 +53,21 @@ const toolCategories = [
 
 export { Navbar };
 export default function Navbar() {
+  const { data: session } = useSession();
+  const { isProUser } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setToolsOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -125,19 +137,74 @@ export default function Navbar() {
         {/* Right: Theme toggle, auth & CTA (desktop) */}
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle />
-          <Link
-            href="/login"
-            className="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors text-sm"
-          >
-            Login
-          </Link>
-          <Link
-            href="/pricing"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            Upgrade to Pro
-          </Link>
+          {session?.user ? (
+            <div ref={userMenuRef} className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 px-3 py-1.5 text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-surface-elevated"
+              >
+                <div className="w-7 h-7 rounded-full bg-accent/20 flex items-center justify-center">
+                  <User className="w-4 h-4 text-accent" />
+                </div>
+                <span className="text-sm">{session.user.email?.split('@')[0]}</span>
+                {isProUser && (
+                  <span className="text-[10px] font-semibold uppercase bg-accent/20 text-accent px-1.5 py-0.5 rounded">
+                    Pro
+                  </span>
+                )}
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {userMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-surface-elevated border border-border rounded-lg shadow-xl p-2 animate-fade-in">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-surface transition-colors text-sm"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  {!isProUser && (
+                    <Link
+                      href="/pricing"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-md text-accent hover:bg-surface transition-colors text-sm"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Upgrade to Pro
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      signOut({ callbackUrl: '/' });
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-surface transition-colors text-sm w-full"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors text-sm"
+              >
+                Login
+              </Link>
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Upgrade to Pro
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile: hamburger */}
@@ -201,21 +268,53 @@ export default function Navbar() {
                 <span className="text-text-secondary text-sm">Theme</span>
                 <ThemeToggle />
               </div>
-              <Link
-                href="/login"
-                onClick={() => setMobileOpen(false)}
-                className="block w-full text-center px-4 py-2.5 text-text-secondary hover:text-text-primary border border-border rounded-lg transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                href="/pricing"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center gap-1.5 w-full text-center px-4 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-lg font-medium transition-colors"
-              >
-                <Sparkles className="w-4 h-4" />
-                Upgrade to Pro
-              </Link>
+              {session?.user ? (
+                <>
+                  <div className="px-3 py-2 text-text-primary text-sm font-medium flex items-center gap-2">
+                    <User className="w-4 h-4 text-accent" />
+                    {session.user.email}
+                    {isProUser && (
+                      <span className="text-[10px] font-semibold uppercase bg-accent/20 text-accent px-1.5 py-0.5 rounded">Pro</span>
+                    )}
+                  </div>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      signOut({ callbackUrl: '/' });
+                    }}
+                    className="flex items-center gap-3 w-full text-left px-3 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="block w-full text-center px-4 py-2.5 text-text-secondary hover:text-text-primary border border-border rounded-lg transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/pricing"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center gap-1.5 w-full text-center px-4 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-lg font-medium transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Upgrade to Pro
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -3,7 +3,10 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { siteConfig } from "@/lib/config";
 import "./globals.css";
 import { SessionProvider } from "@/components/providers/session-provider";
+import { SubscriptionProvider } from "@/context/SubscriptionContext";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -58,8 +61,13 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} dark min-h-full flex flex-col font-sans bg-background text-text-primary`}
       >
+        <GoogleAnalytics />
         <ServiceWorkerRegister />
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <SubscriptionProvider>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </SubscriptionProvider>
+        </SessionProvider>
       </body>
     </html>
   );

@@ -7,10 +7,14 @@ import { SplitPanel } from '@/components/editor/split-panel';
 import { EditorToolbar } from '@/components/editor/editor-toolbar';
 import { ErrorDisplay } from '@/components/editor/error-display';
 import { UrlFetch } from '@/components/editor/url-fetch';
+import { CopyButton } from '@/components/editor/copy-button';
+import { useSubscription } from '@/context/SubscriptionContext';
 import { minifyJson, prettifyJson } from '@/lib/json-utils';
+import { FREE_TIER } from '@/lib/config';
 
 export function JsonMinifierContent() {
   const { state, setInput, setOutput, setError, clear } = useJsonEditor();
+  const { isProUser } = useSubscription();
   const [sizeInfo, setSizeInfo] = useState<{
     original: number;
     minified: number;
@@ -53,11 +57,17 @@ export function JsonMinifierContent() {
 
   const handleUpload = useCallback(
     (file: File) => {
+      if (!isProUser && file.size > FREE_TIER.maxFileSizeBytes) {
+        setError({
+          message: `File exceeds the ${Math.round(FREE_TIER.maxFileSizeBytes / (1024 * 1024))}MB limit for free accounts. Upgrade to Pro for unlimited file sizes.`,
+        });
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (e) => setInput((e.target?.result as string) || '');
       reader.readAsText(file);
     },
-    [setInput]
+    [setInput, setError, isProUser]
   );
 
   const handleDownload = useCallback(() => {
@@ -95,17 +105,24 @@ export function JsonMinifierContent() {
 
       <UrlFetch onFetch={setInput} />
 
-      <EditorToolbar
-        onMinify={handleMinify}
-        onPrettify={handlePrettify}
-        onCopy={handleCopy}
-        onClear={handleClear}
-        onUpload={handleUpload}
-        onDownload={handleDownload}
-        showMinify
-        showPrettify
-        showValidate={false}
-      />
+      <div className="flex items-center gap-4 flex-wrap">
+        <EditorToolbar
+          onMinify={handleMinify}
+          onPrettify={handlePrettify}
+          onCopy={handleCopy}
+          onClear={handleClear}
+          onUpload={handleUpload}
+          onDownload={handleDownload}
+          showMinify
+          showPrettify
+          showValidate={false}
+        />
+        {!isProUser && (
+          <span className="text-xs text-text-muted ml-auto">
+            Max {Math.round(FREE_TIER.maxFileSizeBytes / (1024 * 1024))}MB
+          </span>
+        )}
+      </div>
 
       {sizeInfo && (
         <div className="flex items-center gap-4 p-3 rounded-lg border bg-accent/10 border-accent/30 text-sm">
@@ -124,6 +141,12 @@ export function JsonMinifierContent() {
       )}
 
       <ErrorDisplay error={state.error} />
+
+      {state.output && (
+        <div className="flex justify-end">
+          <CopyButton text={state.output} />
+        </div>
+      )}
 
       <SplitPanel
         left={

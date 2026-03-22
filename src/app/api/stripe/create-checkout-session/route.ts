@@ -1,6 +1,10 @@
 import { stripe, STRIPE_CONFIG } from '@/lib/stripe';
+import { rateLimit } from '@/utils/rate-limiter';
 
 export async function POST(request: Request) {
+  const rateLimitResponse = rateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const body = await request.json();
     const { priceId, billingPeriod } = body;

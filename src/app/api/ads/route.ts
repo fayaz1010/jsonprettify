@@ -1,4 +1,9 @@
+import { rateLimit } from '@/utils/rate-limiter';
+
 export async function GET(request: Request) {
+  const rateLimitResponse = rateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const authHeader = request.headers.get('authorization')
 
   // Ads endpoint works without auth (free users may not be logged in)

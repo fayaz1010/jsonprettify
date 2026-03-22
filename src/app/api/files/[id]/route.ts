@@ -1,7 +1,12 @@
+import { rateLimit } from '@/utils/rate-limiter';
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const rateLimitResponse = rateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const authHeader = request.headers.get('authorization')
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -38,6 +43,9 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const rateLimitResponse = rateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const authHeader = request.headers.get('authorization')
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -89,6 +97,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const rateLimitResponse = rateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const authHeader = request.headers.get('authorization')
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

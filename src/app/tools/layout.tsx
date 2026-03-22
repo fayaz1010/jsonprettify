@@ -1,5 +1,8 @@
-import Navbar from '@/components/layout/navbar';
-import ToolsSidebar from '@/components/layout/tools-sidebar';
+'use client';
+
+import { Navbar } from '@/components/layout/navbar';
+import { ToolsSidebar } from '@/components/layout/tools-sidebar';
+import { AdBanner } from '@/components/shared/ad-banner';
 
 export default function ToolsLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +11,11 @@ export default function ToolsLayout({ children }: { children: React.ReactNode })
       <div className="flex flex-1 overflow-hidden">
         <ToolsSidebar />
         <main className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-5xl mx-auto">{children}</div>
+          <div className="max-w-5xl mx-auto space-y-4">
+            <AdBanner position="top" />
+            {children}
+            <AdBanner position="bottom" />
+          </div>
         </main>
       </div>
     </div>

@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
-import { users } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import bcrypt from 'bcryptjs';
+import { rateLimit } from '@/utils/rate-limiter';
 
 export async function POST(request: Request) {
+  const rateLimitResponse = rateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const body = await request.json();
   const { email, password } = body;
 
@@ -27,7 +32,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const existingUser = users.find((u) => u.email === email);
+  const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
     return NextResponse.json(
       { error: 'Email already exists' },
@@ -35,14 +40,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const newUser = {
-    id: String(users.length + 1),
-    email,
-    password,
-    plan: 'free' as const,
-  };
+  const hashedPassword = await bcrypt.hash(password, 12);
 
-  users.push(newUser);
+  await prisma.user.create({
+    data: {
+      email,
+      passwordHash: hashedPassword,
+    },
+  });
 
   return NextResponse.json(
     { message: 'Account created successfully' },

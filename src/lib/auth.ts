@@ -1,22 +1,7 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { NextAuthOptions } from 'next-auth';
-
-export interface MockUser {
-  id: string;
-  email: string;
-  password: string;
-  plan: 'free' | 'pro';
-}
-
-// In-memory mock user store (resets on server restart)
-export const users: MockUser[] = [
-  {
-    id: '1',
-    email: 'demo@jsonprettify.com',
-    password: 'demo1234',
-    plan: 'free',
-  },
-];
+import { prisma } from '@/lib/db';
+import bcrypt from 'bcryptjs';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -31,19 +16,24 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const user = users.find(
-          (u) =>
-            u.email === credentials.email && u.password === credentials.password
-        );
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
 
-        if (!user) {
+        if (!user || !user.passwordHash) {
+          return null;
+        }
+
+        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+
+        if (!isValid) {
           return null;
         }
 
         return {
           id: user.id,
           email: user.email,
-          plan: user.plan,
+          plan: user.subscriptionStatus.toLowerCase(),
         };
       },
     }),

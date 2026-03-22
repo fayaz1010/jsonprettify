@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { Check, X, Sparkles } from 'lucide-react';
-import { FREE_TIER, PRO_TIER } from '@/lib/config';
+import { Check, X, Sparkles, Loader2 } from 'lucide-react';
+import { useSubscription } from '@/context/SubscriptionContext';
 
 const TIERS = [
   {
@@ -29,6 +30,7 @@ const TIERS = [
     cta: 'Get Started Free',
     ctaHref: '/tools/json-formatter',
     highlighted: false,
+    tier: 'free' as const,
   },
   {
     name: 'Pro',
@@ -51,6 +53,7 @@ const TIERS = [
     cta: 'Start Free Trial',
     ctaHref: '/signup',
     highlighted: true,
+    tier: 'pro' as const,
   },
   {
     name: 'Enterprise',
@@ -73,6 +76,7 @@ const TIERS = [
     cta: 'Contact Sales',
     ctaHref: '/contact',
     highlighted: false,
+    tier: 'enterprise' as const,
   },
 ];
 
@@ -99,8 +103,50 @@ const FAQ = [
   },
 ];
 
-export function PricingPageContent() {
+interface PricingPageContentProps {
+  stripePublishableKey?: string;
+}
+
+export function PricingPageContent({ stripePublishableKey }: PricingPageContentProps) {
   const [annual, setAnnual] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const { isProUser } = useSubscription();
+  const router = useRouter();
+
+  const handleCheckout = async (tier: string) => {
+    if (tier === 'free') {
+      router.push('/tools/json-formatter');
+      return;
+    }
+    if (tier === 'enterprise') {
+      router.push('/contact');
+      return;
+    }
+
+    // Pro checkout via Stripe
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          billingPeriod: annual ? 'annual' : 'monthly',
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        // Fallback: redirect to signup if Stripe is not configured
+        router.push('/signup');
+      }
+    } catch {
+      // If Stripe API fails, redirect to signup
+      router.push('/signup');
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -149,63 +195,87 @@ export function PricingPageContent() {
 
             {/* Pricing Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {TIERS.map((tier) => (
-                <div
-                  key={tier.name}
-                  className={`relative bg-surface rounded-2xl p-8 border ${
-                    tier.highlighted
-                      ? 'border-accent shadow-lg shadow-accent/10 scale-105'
-                      : 'border-border'
-                  }`}
-                >
-                  {tier.highlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-accent text-white text-xs font-semibold rounded-full">
-                      Most Popular
-                    </div>
-                  )}
-
-                  <h3 className="text-xl font-bold text-text-primary mb-2">{tier.name}</h3>
-                  <p className="text-text-secondary text-sm mb-4">{tier.description}</p>
-
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold text-text-primary">
-                      {annual ? tier.price.annual : tier.price.monthly}
-                    </span>
-                    <span className="text-text-muted">{tier.period}</span>
-                    {annual && tier.name !== 'Free' && (
-                      <span className="block text-xs text-text-muted mt-1">
-                        billed annually
-                      </span>
-                    )}
-                  </div>
-
-                  <Link
-                    href={tier.ctaHref}
-                    className={`block w-full text-center py-3 rounded-lg font-semibold transition-colors mb-8 ${
+              {TIERS.map((tier) => {
+                const isCurrentPlan = (tier.tier === 'pro' && isProUser) || (tier.tier === 'free' && !isProUser);
+                return (
+                  <div
+                    key={tier.name}
+                    className={`relative bg-surface rounded-2xl p-8 border ${
                       tier.highlighted
-                        ? 'bg-accent text-white hover:bg-blue-600'
-                        : 'bg-surface-elevated text-text-primary border border-border hover:border-accent/50'
+                        ? 'border-accent shadow-lg shadow-accent/10 scale-105'
+                        : 'border-border'
                     }`}
                   >
-                    {tier.cta}
-                  </Link>
+                    {tier.highlighted && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-accent text-white text-xs font-semibold rounded-full">
+                        Most Popular
+                      </div>
+                    )}
 
-                  <ul className="space-y-3">
-                    {tier.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        {feature.included ? (
-                          <Check className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                        ) : (
-                          <X className="w-4 h-4 text-text-muted mt-0.5 flex-shrink-0" />
-                        )}
-                        <span className={feature.included ? 'text-text-secondary text-sm' : 'text-text-muted text-sm'}>
-                          {feature.text}
+                    <h3 className="text-xl font-bold text-text-primary mb-2">{tier.name}</h3>
+                    <p className="text-text-secondary text-sm mb-4">{tier.description}</p>
+
+                    <div className="mb-6">
+                      <span className="text-4xl font-bold text-text-primary">
+                        {annual ? tier.price.annual : tier.price.monthly}
+                      </span>
+                      <span className="text-text-muted">{tier.period}</span>
+                      {annual && tier.name !== 'Free' && (
+                        <span className="block text-xs text-text-muted mt-1">
+                          billed annually
                         </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                      )}
+                    </div>
+
+                    {isCurrentPlan ? (
+                      <div className="block w-full text-center py-3 rounded-lg font-semibold mb-8 bg-surface-elevated text-text-secondary border border-border cursor-default">
+                        Current Plan
+                      </div>
+                    ) : tier.tier === 'pro' ? (
+                      <button
+                        onClick={() => handleCheckout('pro')}
+                        disabled={checkoutLoading}
+                        className="block w-full text-center py-3 rounded-lg font-semibold transition-colors mb-8 bg-accent text-white hover:bg-blue-600 disabled:opacity-50"
+                      >
+                        {checkoutLoading ? (
+                          <span className="inline-flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Loading...
+                          </span>
+                        ) : (
+                          tier.cta
+                        )}
+                      </button>
+                    ) : (
+                      <Link
+                        href={tier.ctaHref}
+                        className={`block w-full text-center py-3 rounded-lg font-semibold transition-colors mb-8 ${
+                          tier.highlighted
+                            ? 'bg-accent text-white hover:bg-blue-600'
+                            : 'bg-surface-elevated text-text-primary border border-border hover:border-accent/50'
+                        }`}
+                      >
+                        {tier.cta}
+                      </Link>
+                    )}
+
+                    <ul className="space-y-3">
+                      {tier.features.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          {feature.included ? (
+                            <Check className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                          ) : (
+                            <X className="w-4 h-4 text-text-muted mt-0.5 flex-shrink-0" />
+                          )}
+                          <span className={feature.included ? 'text-text-secondary text-sm' : 'text-text-muted text-sm'}>
+                            {feature.text}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

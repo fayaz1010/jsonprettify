@@ -6,10 +6,15 @@ import { SplitPanel } from '@/components/editor/split-panel';
 import { ErrorDisplay } from '@/components/editor/error-display';
 import { TreeView } from '@/components/editor/tree-view';
 import { UrlFetch } from '@/components/editor/url-fetch';
+import { useSubscription } from '@/context/SubscriptionContext';
+import { FREE_TIER } from '@/lib/config';
 import { Upload } from 'lucide-react';
 
 export function JsonViewerContent() {
   const [input, setInput] = useState('');
+  const [uploadError, setUploadError] = useState<{ message: string } | null>(null);
+  const { isProUser } = useSubscription();
+
   const parseResult = useMemo(() => {
     if (!input.trim()) {
       return { data: undefined, error: null };
@@ -26,11 +31,19 @@ export function JsonViewerContent() {
   }, [input]);
 
   const parsedData = parseResult.data;
-  const error = parseResult.error;
+  const error = parseResult.error || uploadError;
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (!isProUser && file.size > FREE_TIER.maxFileSizeBytes) {
+      setUploadError({
+        message: `File exceeds the ${Math.round(FREE_TIER.maxFileSizeBytes / (1024 * 1024))}MB limit for free accounts. Upgrade to Pro for unlimited file sizes.`,
+      });
+      event.target.value = '';
+      return;
+    }
+    setUploadError(null);
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result;
@@ -40,15 +53,16 @@ export function JsonViewerContent() {
     };
     reader.readAsText(file);
     event.target.value = '';
-  }, []);
+  }, [isProUser]);
 
   const handleUrlFetch = useCallback((content: string) => {
+    setUploadError(null);
     setInput(content);
   }, []);
 
   const handleClear = useCallback(() => {
     setInput('');
-    setError(null);
+    setUploadError(null);
   }, []);
 
   return (
@@ -59,7 +73,7 @@ export function JsonViewerContent() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <label className="px-4 py-2 bg-bg-secondary text-text-primary rounded-lg text-sm font-medium hover:bg-bg-tertiary transition-colors cursor-pointer flex items-center gap-2">
+        <label className="px-4 py-2 bg-surface-elevated text-text-primary rounded-lg text-sm font-medium hover:bg-surface transition-colors cursor-pointer flex items-center gap-2 border border-border">
           <Upload className="w-4 h-4" />
           Upload File
           <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
@@ -67,10 +81,15 @@ export function JsonViewerContent() {
         <UrlFetch onFetch={handleUrlFetch} />
         <button
           onClick={handleClear}
-          className="px-4 py-2 bg-bg-secondary text-text-primary rounded-lg text-sm font-medium hover:bg-bg-tertiary transition-colors"
+          className="px-4 py-2 bg-surface-elevated text-text-primary rounded-lg text-sm font-medium hover:bg-surface transition-colors border border-border"
         >
           Clear
         </button>
+        {!isProUser && (
+          <span className="text-xs text-text-muted self-center">
+            Max {Math.round(FREE_TIER.maxFileSizeBytes / (1024 * 1024))}MB
+          </span>
+        )}
       </div>
 
       <ErrorDisplay error={error} />
@@ -87,7 +106,7 @@ export function JsonViewerContent() {
           />
         }
         right={
-          <div className="h-full overflow-auto p-4 bg-bg-primary rounded-lg border border-border-primary">
+          <div className="h-full overflow-auto p-4">
             {parsedData !== undefined ? (
               <TreeView data={parsedData} level={0} />
             ) : (
@@ -99,7 +118,7 @@ export function JsonViewerContent() {
         }
       />
 
-      <div className="bg-bg-secondary rounded-xl p-6">
+      <div className="bg-surface border border-border rounded-xl p-6">
         <h2 className="text-lg font-semibold text-text-primary mb-3">About JSON Viewer</h2>
         <p className="text-text-secondary text-sm leading-relaxed">
           The JSON Viewer renders your JSON data as an interactive, collapsible tree.

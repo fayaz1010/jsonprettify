@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { LogIn, Loader2 } from 'lucide-react';
+import { LogIn, Loader2, CheckCircle } from 'lucide-react';
 
 export function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const resetSuccess = searchParams.get('reset') === 'success';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -67,6 +69,12 @@ export function LoginPageContent() {
           </div>
 
           <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-xl p-8 space-y-6">
+            {resetSuccess && (
+              <div className="p-3 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-[#22C55E] mt-0.5 shrink-0" />
+                <p className="text-sm text-[#22C55E]">Your password has been reset successfully. You can now log in with your new password.</p>
+              </div>
+            )}
             {error && (
               <div className="p-3 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/20">
                 <p className="text-sm text-[#EF4444]">{error}</p>
@@ -99,7 +107,7 @@ export function LoginPageContent() {
                 <input type="checkbox" className="rounded border-border" />
                 Remember me
               </label>
-              <Link href="/contact" className="text-sm text-accent hover:underline">
+              <Link href="/forgot-password" className="text-sm text-accent hover:underline">
                 Forgot password?
               </Link>
             </div>

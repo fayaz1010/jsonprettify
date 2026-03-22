@@ -1,4 +1,11 @@
+import { prisma } from "@/lib/db";
+import { rateLimit } from '@/utils/rate-limiter';
+import bcrypt from "bcryptjs";
+
 export async function POST(request: Request) {
+  const rateLimitResponse = rateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const body = await request.json()
     const { email, password } = body
@@ -10,24 +17,35 @@ export async function POST(request: Request) {
       )
     }
 
-    // Mock authentication — no real database
-    if (email === 'test@example.com' && password === 'password123') {
-      return Response.json({
-        success: true,
-        message: 'Login successful',
-        user: {
-          id: 'user123',
-          email: 'test@example.com',
-          subscription: 'free',
-        },
-        token: 'mock-jwt-token-abc123',
-      })
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user || !user.passwordHash) {
+      return Response.json(
+        { success: false, error: 'Invalid credentials' },
+        { status: 401 }
+      )
     }
 
-    return Response.json(
-      { success: false, error: 'Invalid credentials' },
-      { status: 401 }
-    )
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isValid) {
+      return Response.json(
+        { success: false, error: 'Invalid credentials' },
+        { status: 401 }
+      )
+    }
+
+    return Response.json({
+      success: true,
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        subscription: user.subscriptionStatus.toLowerCase(),
+      },
+    })
   } catch {
     return Response.json(
       { success: false, error: 'Internal server error' },

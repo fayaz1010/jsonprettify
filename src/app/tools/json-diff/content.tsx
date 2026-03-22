@@ -1,16 +1,15 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import Link from 'next/link';
 import { JsonEditor } from '@/components/editor/json-editor';
 import { ErrorDisplay } from '@/components/editor/error-display';
 import { UpgradeGate } from '@/components/shared/upgrade-gate';
+import { useSubscription } from '@/context/SubscriptionContext';
 import { computeJsonDiff } from '@/lib/converters/json-diff';
-import { FREE_TIER } from '@/lib/config';
 import type { DiffResult } from '@/lib/converters/json-diff';
 
 export function JsonDiffContent() {
-  const isProFeatureGated = !FREE_TIER.hasJsonDiff;
+  const { isProUser } = useSubscription();
   const [inputA, setInputA] = useState('');
   const [inputB, setInputB] = useState('');
   const [results, setResults] = useState<DiffResult[] | null>(null);
@@ -41,19 +40,8 @@ export function JsonDiffContent() {
     setError(null);
   }, []);
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary mb-2">JSON Diff Tool</h1>
-        <p className="text-text-secondary">Compare two JSON objects side by side and highlight differences.</p>
-      </div>
-
-      {isProFeatureGated && (
-        <UpgradeGate feature="JSON Diff Tool" tier="pro">
-          <div className="h-64 bg-surface rounded-xl" />
-        </UpgradeGate>
-      )}
-
+  const toolContent = (
+    <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-text-primary mb-2">JSON A</label>
@@ -84,7 +72,7 @@ export function JsonDiffContent() {
         </button>
         <button
           onClick={handleClear}
-          className="px-6 py-2 bg-bg-secondary text-text-primary rounded-lg font-medium hover:bg-bg-tertiary transition-colors"
+          className="px-6 py-2 bg-surface-elevated text-text-primary rounded-lg font-medium hover:bg-surface transition-colors border border-border"
         >
           Clear
         </button>
@@ -146,8 +134,25 @@ export function JsonDiffContent() {
           </div>
         </div>
       )}
+    </>
+  );
 
-      <div className="bg-bg-secondary rounded-xl p-6">
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-text-primary mb-2">JSON Diff Tool</h1>
+        <p className="text-text-secondary">Compare two JSON objects side by side and highlight differences.</p>
+      </div>
+
+      {!isProUser ? (
+        <UpgradeGate feature="JSON Diff Tool" tier="pro">
+          {toolContent}
+        </UpgradeGate>
+      ) : (
+        toolContent
+      )}
+
+      <div className="bg-surface border border-border rounded-xl p-6">
         <h2 className="text-lg font-semibold text-text-primary mb-3">About JSON Diff</h2>
         <p className="text-text-secondary text-sm leading-relaxed">
           The JSON Diff tool compares two JSON objects and identifies additions, removals, and changes at every level of nesting.

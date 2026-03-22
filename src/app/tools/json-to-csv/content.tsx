@@ -7,12 +7,15 @@ import { SplitPanel } from '@/components/editor/split-panel';
 import { EditorToolbar } from '@/components/editor/editor-toolbar';
 import { ErrorDisplay } from '@/components/editor/error-display';
 import { UrlFetch } from '@/components/editor/url-fetch';
+import { CopyButton } from '@/components/editor/copy-button';
 import { UpgradeGate } from '@/components/shared/upgrade-gate';
+import { useSubscription } from '@/context/SubscriptionContext';
 import { jsonToCsv } from '@/lib/converters/json-to-csv';
 import { FREE_TIER } from '@/lib/config';
 
 export function JsonToCsvContent() {
   const { state, setInput, setOutput, setError, clear } = useJsonEditor();
+  const { isProUser } = useSubscription();
 
   const handleConvert = useCallback(() => {
     if (!state.input.trim()) return;
@@ -32,11 +35,17 @@ export function JsonToCsvContent() {
 
   const handleUpload = useCallback(
     (file: File) => {
+      if (!isProUser && file.size > FREE_TIER.maxFileSizeBytes) {
+        setError({
+          message: `File exceeds the ${Math.round(FREE_TIER.maxFileSizeBytes / (1024 * 1024))}MB limit for free accounts. Upgrade to Pro for unlimited file sizes.`,
+        });
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (e) => setInput((e.target?.result as string) || '');
       reader.readAsText(file);
     },
-    [setInput]
+    [setInput, setError, isProUser]
   );
 
   const handleDownload = useCallback(() => {
@@ -70,18 +79,31 @@ export function JsonToCsvContent() {
 
       <UrlFetch onFetch={setInput} />
 
-      <EditorToolbar
-        onPrettify={handleConvert}
-        onCopy={handleCopy}
-        onClear={clear}
-        onUpload={handleUpload}
-        onDownload={handleDownload}
-        showPrettify
-        showMinify={false}
-        showValidate={false}
-      />
+      <div className="flex items-center gap-4 flex-wrap">
+        <EditorToolbar
+          onPrettify={handleConvert}
+          onCopy={handleCopy}
+          onClear={clear}
+          onUpload={handleUpload}
+          onDownload={handleDownload}
+          showPrettify
+          showMinify={false}
+          showValidate={false}
+        />
+        {!isProUser && (
+          <span className="text-xs text-text-muted ml-auto">
+            Max {Math.round(FREE_TIER.maxFileSizeBytes / (1024 * 1024))}MB
+          </span>
+        )}
+      </div>
 
       <ErrorDisplay error={state.error} />
+
+      {state.output && (
+        <div className="flex justify-end">
+          <CopyButton text={state.output} />
+        </div>
+      )}
 
       <SplitPanel
         left={
@@ -128,7 +150,7 @@ export function JsonToCsvContent() {
           </ul>
         </div>
       </div>
-      {!FREE_TIER.hasAdvancedConversions && (
+      {!isProUser && (
         <UpgradeGate feature="Advanced Conversion Options (TOML, BSON)" tier="pro">
           <div className="bg-surface border border-border rounded-xl p-6">
             <h2 className="text-lg font-semibold text-text-primary mb-3">

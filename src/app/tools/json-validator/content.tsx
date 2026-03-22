@@ -7,10 +7,14 @@ import { SplitPanel } from '@/components/editor/split-panel';
 import { EditorToolbar } from '@/components/editor/editor-toolbar';
 import { ErrorDisplay } from '@/components/editor/error-display';
 import { UrlFetch } from '@/components/editor/url-fetch';
+import { CopyButton } from '@/components/editor/copy-button';
+import { useSubscription } from '@/context/SubscriptionContext';
 import { validateJson, prettifyJson } from '@/lib/json-utils';
+import { FREE_TIER } from '@/lib/config';
 
 export function JsonValidatorContent() {
   const { state, setInput, setOutput, setError, clear } = useJsonEditor();
+  const { isProUser } = useSubscription();
   const [validationResult, setValidationResult] = useState<{
     valid: boolean;
     message: string;
@@ -44,11 +48,17 @@ export function JsonValidatorContent() {
 
   const handleUpload = useCallback(
     (file: File) => {
+      if (!isProUser && file.size > FREE_TIER.maxFileSizeBytes) {
+        setError({
+          message: `File exceeds the ${Math.round(FREE_TIER.maxFileSizeBytes / (1024 * 1024))}MB limit for free accounts. Upgrade to Pro for unlimited file sizes.`,
+        });
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (e) => setInput((e.target?.result as string) || '');
       reader.readAsText(file);
     },
-    [setInput]
+    [setInput, setError, isProUser]
   );
 
   const handleDownload = useCallback(() => {
@@ -81,17 +91,24 @@ export function JsonValidatorContent() {
 
       <UrlFetch onFetch={setInput} />
 
-      <EditorToolbar
-        onValidate={handleValidate}
-        onCopy={handleCopy}
-        onClear={handleClear}
-        onUpload={handleUpload}
-        onDownload={handleDownload}
-        showPrettify={false}
-        showMinify={false}
-        showValidate
-        validationResult={validationResult}
-      />
+      <div className="flex items-center gap-4 flex-wrap">
+        <EditorToolbar
+          onValidate={handleValidate}
+          onCopy={handleCopy}
+          onClear={handleClear}
+          onUpload={handleUpload}
+          onDownload={handleDownload}
+          showPrettify={false}
+          showMinify={false}
+          showValidate
+          validationResult={validationResult}
+        />
+        {!isProUser && (
+          <span className="text-xs text-text-muted ml-auto">
+            Max {Math.round(FREE_TIER.maxFileSizeBytes / (1024 * 1024))}MB
+          </span>
+        )}
+      </div>
 
       {validationResult && (
         <div
@@ -107,6 +124,12 @@ export function JsonValidatorContent() {
       )}
 
       <ErrorDisplay error={state.error} />
+
+      {state.output && (
+        <div className="flex justify-end">
+          <CopyButton text={state.output} />
+        </div>
+      )}
 
       <SplitPanel
         left={

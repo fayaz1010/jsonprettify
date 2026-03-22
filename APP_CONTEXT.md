@@ -1,5 +1,5 @@
 # JSON Prettify — Project Context
-Generated: 2026-03-22T07:23:09.565Z | Updated: 2026-03-22T07:23:09.565Z
+Generated: 2026-03-22T08:33:55.059Z | Updated: 2026-03-22T08:58:21.255Z
 
 ## Overview
 Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.
@@ -15,75 +15,95 @@ Domain: jsonprettify.com
 
 ## Tech Stack
 - Framework: nextjs
-- Dependencies: @codemirror/commands, @codemirror/lang-json, @codemirror/lint, @codemirror/search, @codemirror/state, @codemirror/view, ajv, codemirror, fast-xml-parser, js-yaml, lucide-react, next, papaparse, react, react-dom
+- Dependencies: @codemirror/commands, @codemirror/lang-json, @codemirror/lint, @codemirror/search, @codemirror/state, @codemirror/view, @stripe/stripe-js, @tailwindcss/typography, ajv, codemirror, fast-xml-parser, js-yaml, lucide-react, next, next-auth
 
 ## Design System
 - Primary: #1E293B | Accent: #3B82F6 | BG: #0F172A
 - Pages: 21 planned (/, /minify, /convert, /diff, /schema-validator, /viewer, /fetch-url, /saved...)
 
 ## File Map
-| Path | Purpose |
-|------|---------|
-| D:/jsonprettify/src/app/blog/content.tsx | Source |
-| D:/jsonprettify/src/app/blog/page.tsx | Page route |
-| D:/jsonprettify/src/app/contact/content.tsx | Source |
-| D:/jsonprettify/src/app/contact/page.tsx | Page route |
-| D:/jsonprettify/src/app/dashboard/content.tsx | Source |
-| D:/jsonprettify/src/app/dashboard/page.tsx | Page route |
-| D:/jsonprettify/src/app/features/content.tsx | Source |
-| D:/jsonprettify/src/app/features/page.tsx | Page route |
-| D:/jsonprettify/src/app/layout.tsx | Layout |
-| D:/jsonprettify/src/app/login/content.tsx | Source |
-| D:/jsonprettify/src/app/login/page.tsx | Page route |
-| D:/jsonprettify/src/app/page.tsx | Page route |
-| D:/jsonprettify/src/app/pricing/content.tsx | Source |
-| D:/jsonprettify/src/app/pricing/page.tsx | Page route |
-| D:/jsonprettify/src/app/privacy/content.tsx | Source |
-| D:/jsonprettify/src/app/privacy/page.tsx | Page route |
-| D:/jsonprettify/src/app/signup/content.tsx | Source |
-| D:/jsonprettify/src/app/signup/page.tsx | Page route |
-| D:/jsonprettify/src/app/terms/content.tsx | Source |
-| D:/jsonprettify/src/app/terms/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-diff/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-diff/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-formatter/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-formatter/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-minifier/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-minifier/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-schema-validator/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-schema-validator/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-to-csv/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-to-csv/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-to-xml/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-to-xml/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-to-yaml/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-to-yaml/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-validator/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-validator/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/json-viewer/content.tsx | Source |
-| D:/jsonprettify/src/app/tools/json-viewer/page.tsx | Page route |
-| D:/jsonprettify/src/app/tools/layout.tsx | Layout |
-| D:/jsonprettify/src/components/editor/copy-button.tsx | Component |
-| D:/jsonprettify/src/components/editor/editor-toolbar.tsx | Component |
-| D:/jsonprettify/src/components/editor/error-display.tsx | Component |
-| D:/jsonprettify/src/components/editor/file-handler.tsx | Component |
-| D:/jsonprettify/src/components/editor/json-editor.tsx | Component |
-| D:/jsonprettify/src/components/editor/split-panel.tsx | Component |
-| D:/jsonprettify/src/components/editor/tree-view.tsx | Component |
-| D:/jsonprettify/src/components/editor/url-fetch.tsx | Component |
-| D:/jsonprettify/src/components/layout/footer.tsx | Component |
-| D:/jsonprettify/src/components/layout/marketing-layout.tsx | Component |
-| D:/jsonprettify/src/components/layout/navbar.tsx | Component |
-| D:/jsonprettify/src/components/layout/tools-sidebar.tsx | Component |
-| D:/jsonprettify/src/components/shared/privacy-badge.tsx | Component |
-| D:/jsonprettify/src/components/shared/upgrade-gate.tsx | Component |
-| D:/jsonprettify/src/components/ui/badge.tsx | Component |
-| D:/jsonprettify/src/components/ui/button.tsx | Component |
-| D:/jsonprettify/src/components/ui/card.tsx | Component |
-| D:/jsonprettify/src/components/ui/input.tsx | Component |
-| D:/jsonprettify/src/components/ui/modal.tsx | Component |
-| D:/jsonprettify/src/components/ui/tabs.tsx | Component |
-| D:/jsonprettify/src/components/ui/ThemeToggle.tsx | Component |
+| Path | Type | Description |
+|------|------|-------------|
+| D:/jsonprettify/src/app/api/ads/route.ts | API | Ads endpoint works without auth (free users may not be logge |
+| D:/jsonprettify/src/app/api/auth/login/route.ts | API |  |
+| D:/jsonprettify/src/app/api/auth/register/route.ts | API |  |
+| D:/jsonprettify/src/app/api/auth/signup/route.ts | API |  |
+| D:/jsonprettify/src/app/api/auth/[...nextauth]/route.ts | API |  |
+| D:/jsonprettify/src/app/api/files/route.ts | API |  |
+| D:/jsonprettify/src/app/api/files/[id]/route.ts | API |  |
+| D:/jsonprettify/src/app/api/stripe/create-checkout-session/route.ts | API |  |
+| D:/jsonprettify/src/app/api/stripe/webhook/route.ts | API | Disable Next.js body parsing — Stripe needs the raw body for |
+| D:/jsonprettify/src/app/api/subscription/route.ts | API |  |
+| D:/jsonprettify/src/app/api/user/route.ts | API |  |
+| D:/jsonprettify/src/app/blog/content.tsx | Source | BlogPageContent |
+| D:/jsonprettify/src/app/blog/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/blog/[slug]/content.tsx | Source | BlogPostContent |
+| D:/jsonprettify/src/app/blog/[slug]/page.tsx | Page | Route: D:/jsonprettify//blog/[slug] |
+| D:/jsonprettify/src/app/contact/content.tsx | Source | ContactPageContent |
+| D:/jsonprettify/src/app/contact/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/dashboard/content.tsx | Source |  |
+| D:/jsonprettify/src/app/dashboard/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/error.tsx | Source | Error |
+| D:/jsonprettify/src/app/features/content.tsx | Source |  |
+| D:/jsonprettify/src/app/features/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/layout.tsx | Layout |  |
+| D:/jsonprettify/src/app/login/content.tsx | Source | LoginPageContent |
+| D:/jsonprettify/src/app/login/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/manifest.ts | Source | manifest |
+| D:/jsonprettify/src/app/not-found.tsx | Source | NotFound |
+| D:/jsonprettify/src/app/page.tsx | Page | Route: D:/jsonprettify/ |
+| D:/jsonprettify/src/app/pricing/content.tsx | Source |  |
+| D:/jsonprettify/src/app/pricing/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/privacy/content.tsx | Source | PrivacyPageContent |
+| D:/jsonprettify/src/app/privacy/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/signup/content.tsx | Source | SignupPageContent |
+| D:/jsonprettify/src/app/signup/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/terms/content.tsx | Source | TermsPageContent |
+| D:/jsonprettify/src/app/terms/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-diff/content.tsx | Source | JsonDiffContent |
+| D:/jsonprettify/src/app/tools/json-diff/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-formatter/content.tsx | Source | JsonFormatterContent |
+| D:/jsonprettify/src/app/tools/json-formatter/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-minifier/content.tsx | Source | JsonMinifierContent |
+| D:/jsonprettify/src/app/tools/json-minifier/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-schema-validator/content.tsx | Source | json-schema.org/draft/2020-12/schema", |
+| D:/jsonprettify/src/app/tools/json-schema-validator/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-to-csv/content.tsx | Source | JsonToCsvContent |
+| D:/jsonprettify/src/app/tools/json-to-csv/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-to-xml/content.tsx | Source | JsonToXmlContent |
+| D:/jsonprettify/src/app/tools/json-to-xml/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-to-yaml/content.tsx | Source | JsonToYamlContent |
+| D:/jsonprettify/src/app/tools/json-to-yaml/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-validator/content.tsx | Source | JsonValidatorContent |
+| D:/jsonprettify/src/app/tools/json-validator/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/json-viewer/content.tsx | Source | JsonViewerContent |
+| D:/jsonprettify/src/app/tools/json-viewer/page.tsx | Page | metadata |
+| D:/jsonprettify/src/app/tools/layout.tsx | Layout | ToolsLayout |
+| D:/jsonprettify/src/components/analytics/google-analytics.tsx | Component |  |
+| D:/jsonprettify/src/components/editor/copy-button.tsx | Component | CopyButton |
+| D:/jsonprettify/src/components/editor/editor-toolbar.tsx | Component |  |
+| D:/jsonprettify/src/components/editor/error-display.tsx | Component | ErrorDisplay |
+| D:/jsonprettify/src/components/editor/file-handler.tsx | Component | FileHandler |
+| D:/jsonprettify/src/components/editor/json-editor.tsx | Component |  |
+| D:/jsonprettify/src/components/editor/split-panel.tsx | Component | SplitPanel |
+| D:/jsonprettify/src/components/editor/tree-view.tsx | Component |  |
+| D:/jsonprettify/src/components/editor/url-fetch.tsx | Component | UrlFetch |
+| D:/jsonprettify/src/components/layout/footer.tsx | Component |  |
+| D:/jsonprettify/src/components/layout/marketing-layout.tsx | Component | MarketingLayout |
+| D:/jsonprettify/src/components/layout/navbar.tsx | Component |  |
+| D:/jsonprettify/src/components/layout/tools-sidebar.tsx | Component |  |
+| D:/jsonprettify/src/components/providers/session-provider.tsx | Component | SessionProvider |
+| D:/jsonprettify/src/components/pwa/sw-register.tsx | Component | ServiceWorkerRegister |
+| D:/jsonprettify/src/components/shared/ErrorBoundary.tsx | Component | ErrorBoundary |
+| D:/jsonprettify/src/components/shared/privacy-badge.tsx | Component | PrivacyBadge |
+| D:/jsonprettify/src/components/shared/upgrade-gate.tsx | Component | UpgradeGate |
+| D:/jsonprettify/src/components/ui/badge.tsx | Component |  |
+| D:/jsonprettify/src/components/ui/button.tsx | Component |  |
+| D:/jsonprettify/src/components/ui/card.tsx | Component | Card |
+| D:/jsonprettify/src/components/ui/input.tsx | Component | Input |
+| D:/jsonprettify/src/components/ui/modal.tsx | Component | Modal |
+| D:/jsonprettify/src/components/ui/tabs.tsx | Component |  |
+| D:/jsonprettify/src/components/ui/ThemeToggle.tsx | Component | ThemeToggle |
 
 ## Competitors
 - **JSONLint** (https://jsonlint.com/): Well-established and widely used, often the first result in search engines., Fast and simple interface focused on validation.

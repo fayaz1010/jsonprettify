@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import Link from 'next/link';
 import { JsonEditor } from '@/components/editor/json-editor';
 import { ErrorDisplay } from '@/components/editor/error-display';
 import { UpgradeGate } from '@/components/shared/upgrade-gate';
+import { useSubscription } from '@/context/SubscriptionContext';
 import { validateJsonSchema } from '@/lib/schema-validator';
-import { FREE_TIER } from '@/lib/config';
 
 const SAMPLE_SCHEMA = `{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -20,7 +19,7 @@ const SAMPLE_SCHEMA = `{
 }`;
 
 export function JsonSchemaValidatorContent() {
-  const isProFeatureGated = !FREE_TIER.hasSchemaValidation;
+  const { isProUser } = useSubscription();
   const [jsonData, setJsonData] = useState('');
   const [jsonSchema, setJsonSchema] = useState('');
   const [validationResult, setValidationResult] = useState<{ valid: boolean; errors: { path: string; message: string; keyword: string }[] } | null>(null);
@@ -50,19 +49,8 @@ export function JsonSchemaValidatorContent() {
     setError(null);
   }, []);
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary mb-2">JSON Schema Validator</h1>
-        <p className="text-text-secondary">Validate JSON data against a JSON Schema definition.</p>
-      </div>
-
-      {isProFeatureGated && (
-        <UpgradeGate feature="JSON Schema Validation" tier="pro">
-          <div className="h-64 bg-surface rounded-xl" />
-        </UpgradeGate>
-      )}
-
+  const toolContent = (
+    <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-text-primary mb-2">JSON Data</label>
@@ -93,7 +81,7 @@ export function JsonSchemaValidatorContent() {
         </button>
         <button
           onClick={handleClear}
-          className="px-6 py-2 bg-bg-secondary text-text-primary rounded-lg font-medium hover:bg-bg-tertiary transition-colors"
+          className="px-6 py-2 bg-surface-elevated text-text-primary rounded-lg font-medium hover:bg-surface transition-colors border border-border"
         >
           Clear
         </button>
@@ -133,8 +121,25 @@ export function JsonSchemaValidatorContent() {
           )}
         </div>
       )}
+    </>
+  );
 
-      <div className="bg-bg-secondary rounded-xl p-6">
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-text-primary mb-2">JSON Schema Validator</h1>
+        <p className="text-text-secondary">Validate JSON data against a JSON Schema definition.</p>
+      </div>
+
+      {!isProUser ? (
+        <UpgradeGate feature="JSON Schema Validation" tier="pro">
+          {toolContent}
+        </UpgradeGate>
+      ) : (
+        toolContent
+      )}
+
+      <div className="bg-surface border border-border rounded-xl p-6">
         <h2 className="text-lg font-semibold text-text-primary mb-3">About JSON Schema Validation</h2>
         <p className="text-text-secondary text-sm leading-relaxed">
           JSON Schema is a vocabulary that allows you to annotate and validate JSON documents.
