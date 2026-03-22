@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { GA_MEASUREMENT_ID, pageView } from '@/lib/analytics';
@@ -41,7 +41,9 @@ export function GoogleAnalytics() {
           `,
         }}
       />
-      <PageViewTracker />
+      <Suspense>
+        <PageViewTracker />
+      </Suspense>
     </>
   );
 }

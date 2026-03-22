@@ -39,8 +39,7 @@ const footerColumns = [
   },
 ];
 
-export { Footer };
-export default function Footer() {
+function Footer() {
   return (
     <footer className="bg-primary-dark border-t border-border">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -78,3 +77,6 @@ export default function Footer() {
     </footer>
   );
 }
+
+export { Footer };
+export default Footer;

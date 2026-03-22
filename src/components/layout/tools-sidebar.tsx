@@ -43,8 +43,7 @@ const toolCategories = [
 
 const allTools = toolCategories.flatMap((c) => c.tools);
 
-export { ToolsSidebar };
-export default function ToolsSidebar() {
+function ToolsSidebar() {
   const pathname = usePathname();
 
   return (
@@ -116,3 +115,6 @@ export default function ToolsSidebar() {
     </>
   );
 }
+
+export { ToolsSidebar };
+export default ToolsSidebar;

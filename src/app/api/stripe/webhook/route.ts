@@ -110,9 +110,10 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
   const customerId = typeof invoice.customer === 'string'
     ? invoice.customer
     : invoice.customer?.id;
-  const subscriptionId = typeof invoice.subscription === 'string'
-    ? invoice.subscription
-    : invoice.subscription?.id;
+  const sub = (invoice as unknown as Record<string, unknown>).subscription;
+  const subscriptionId = typeof sub === 'string'
+    ? sub
+    : (sub as { id?: string })?.id;
   const periodEnd = invoice.lines?.data?.[0]?.period?.end;
 
   console.log(`[Stripe Webhook] invoice.payment_succeeded — customer: ${customerId}, subscription: ${subscriptionId}`);

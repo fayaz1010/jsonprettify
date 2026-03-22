@@ -36,6 +36,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# claude
+.claude/
+
+# lock files (npm only)
+yarn.lock
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

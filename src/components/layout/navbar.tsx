@@ -51,8 +51,7 @@ const toolCategories = [
   },
 ];
 
-export { Navbar };
-export default function Navbar() {
+function Navbar() {
   const { data: session } = useSession();
   const { isProUser } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -322,3 +321,6 @@ export default function Navbar() {
     </nav>
   );
 }
+
+export { Navbar };
+export default Navbar;
