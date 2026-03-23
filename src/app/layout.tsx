@@ -18,11 +18,13 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
 });
 
+const siteDescription =
+  "Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.appUrl),
   title: "JSON Prettify",
-  description:
-    "Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.",
+  description: siteDescription,
   keywords: [
     "JSON formatter",
     "JSON validator",
@@ -35,10 +37,13 @@ export const metadata: Metadata = {
     "JSON schema validator",
     "JSON viewer",
   ],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "JSON Prettify",
-    description:
-      "Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.",
+    description: siteDescription,
+    url: "/",
     type: "website",
     siteName: "JSON Prettify",
     images: ["/api/og"],
@@ -46,8 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "JSON Prettify",
-    description:
-      "Free online JSON formatter, validator, minifier and converter. Paste or upload JSON to prettify with syntax highlighting, validate structure, minify for production, and convert between JSON/YAML/CSV. Fast, private (client-side only), no data sent to servers.",
+    description: siteDescription,
   },
 };
 

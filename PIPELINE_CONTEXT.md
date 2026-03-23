@@ -1,13 +1,13 @@
 # JSON Prettify — Pipeline Context (Live)
-Updated: 2026-03-22T15:05:50.115Z
+Updated: 2026-03-22T15:13:41.495Z
 
 ## Pipeline Status
 - Stage: building | Status: building
 - Completion: 72%
 - Build passes: YES
 - Effort remaining: ~18h
-- Completed phases: scan, research, design, plan, env, build, lint, test
-- Last phase: build at 2026-03-22T15:05:37.615Z
+- Completed phases: scan, research, design, plan, env, build, lint, test, wire
+- Last phase: wire at 2026-03-22T15:11:26.446Z
 
 ## Retry History
 - plan: 1 attempts (max 2)
@@ -46,6 +46,30 @@ Updated: 2026-03-22T15:05:50.115Z
 ### build (2026-03-22T14:35:07.117Z)
 - agents_spawned: 12
 - tasks: ["Fix: Email service not implemented — lib/email.ts just console.logs (password reset e","Fix: Contact form has no backend — submits to nothing","Fix: No email verification on signup","Fix: SubscriptionContext uses localStorage only — no server-side Pro status verificat","Fix: No Stripe checkout auth check — unauthenticated users can create checkout sessio","Fix: 1. Connect real PostgreSQL via Prisma — generate client, replace mock db.ts, run","Fix: 2. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, create Stripe products/prices, config","Fix: 3. Implement Stripe webhook DB updates (replace TODO console.log stubs)","Fix: 4. Integrate real email service (Resend/SendGrid) for password reset and contact","Fix: 5. Unify password validation (both auth routes should require 8+ chars), remove ","Wire and integrate all components","Fix all lint and type errors"]
+
+### wire (2026-03-22T15:11:30.522Z)
+- errors_fixed: 2
+- build_passes: true
+- files_modified: 3
+
+### lint (2026-03-22T15:11:30.523Z)
+- ts_errors_fixed: 0
+- eslint_errors_fixed: 0
+- build_passes: true
+
+### test (2026-03-22T15:11:30.523Z)
+- build_passes: true
+- errors_fixed: 0
+
+### design-compliance (2026-03-22T15:13:38.645Z)
+- score: 82.5
+- pages_found: 16
+- pages_required: 20
+- features_found: 17
+- features_required: 20
+- verdict: partial
+- missing_pages: ["/fetch-url","/settings","/about","/changelog"]
+- missing_features: ["Priority Processing","Advanced Export Options","Advanced Conversion Options (TOML, BSON)"]
 
 ## Open Issues & Warnings
 - 🔴 [pipeline] pipeline phase failed: Pipeline crashed: Gemini 404: {
